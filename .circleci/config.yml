@@ -1,0 +1,34 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+
+defaults: &defaults
+  working_directory: /go/src/github.com/sonaak/thuum
+  docker:
+  - image: circleci/golang:1.9
+
+jobs:
+
+  cc_report:
+    <<: *defaults
+    steps:
+
+    # specify any bash command here prefixed with `run: `
+    - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+    - run:
+        name: Download cc-test-reporter
+        command: |
+          mkdir -p tmp/
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
+          chmod +x ./tmp/cc-test-reporter
+    - persist_to_workspace:
+        root: tmp
+        paths:
+        - cc-test-reporter
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+    - cc_report
